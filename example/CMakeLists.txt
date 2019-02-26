@@ -1,0 +1,18 @@
+
+find_package(Threads REQUIRED)
+
+add_executable(bounded_buffer_comparison bounded_buffer_comparison.cpp)
+target_link_libraries(bounded_buffer_comparison PRIVATE Boost::circular_buffer Threads::Threads)
+
+add_executable(circular_buffer_bound_example  circular_buffer_bound_example.cpp)
+target_link_libraries(circular_buffer_bound_example PRIVATE Boost::circular_buffer Threads::Threads)
+
+add_executable(circular_buffer_example circular_buffer_example.cpp)
+target_link_libraries(circular_buffer_example PRIVATE Boost::circular_buffer Threads::Threads)
+
+add_executable(circular_buffer_iter_example circular_buffer_iter_example.cpp)
+target_link_libraries(circular_buffer_iter_example PRIVATE Boost::circular_buffer Threads::Threads)
+
+add_executable(circular_buffer_sum_example  circular_buffer_sum_example.cpp)
+target_link_libraries(circular_buffer_sum_example PRIVATE Boost::circular_buffer Threads::Threads)
+

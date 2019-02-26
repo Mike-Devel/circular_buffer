@@ -8,15 +8,13 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 
 #include <boost/circular_buffer.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/call_traits.hpp>
-#include <boost/progress.hpp>
-#include <boost/bind.hpp>
+#include <mutex>
+#include <condition_variable>
+#include <thread>
 #include <deque>
 #include <list>
 #include <string>
+#include <functional>
 #include <iostream>
 
 const unsigned long QUEUE_SIZE     = 1000L;
@@ -29,13 +27,13 @@ public:
     typedef boost::circular_buffer<T> container_type;
     typedef typename container_type::size_type size_type;
     typedef typename container_type::value_type value_type;
-    typedef typename boost::call_traits<value_type>::param_type param_type;
+    typedef const T& param_type;
 
     explicit bounded_buffer(size_type capacity) : m_unread(0), m_container(capacity) {}
 
     void push_front(param_type item) {
-        boost::mutex::scoped_lock lock(m_mutex);
-        m_not_full.wait(lock, boost::bind(&bounded_buffer<value_type>::is_not_full, this));
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_not_full.wait(lock, std::bind(&bounded_buffer<value_type>::is_not_full, this));
         m_container.push_front(item);
         ++m_unread;
         lock.unlock();
@@ -43,8 +41,8 @@ public:
     }
 
     void pop_back(value_type* pItem) {
-        boost::mutex::scoped_lock lock(m_mutex);
-        m_not_empty.wait(lock, boost::bind(&bounded_buffer<value_type>::is_not_empty, this));
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_not_empty.wait(lock, std::bind(&bounded_buffer<value_type>::is_not_empty, this));
         *pItem = m_container[--m_unread];
         lock.unlock();
         m_not_full.notify_one();
@@ -59,9 +57,9 @@ private:
 
     size_type m_unread;
     container_type m_container;
-    boost::mutex m_mutex;
-    boost::condition m_not_empty;
-    boost::condition m_not_full;
+    std::mutex m_mutex;
+    std::condition_variable m_not_empty;
+    std::condition_variable m_not_full;
 };
 
 template <class T>
@@ -71,21 +69,21 @@ public:
     typedef boost::circular_buffer_space_optimized<T> container_type;
     typedef typename container_type::size_type size_type;
     typedef typename container_type::value_type value_type;
-    typedef typename boost::call_traits<value_type>::param_type param_type;
+    typedef const T& param_type;
 
     explicit bounded_buffer_space_optimized(size_type capacity) : m_container(capacity) {}
 
     void push_front(param_type item) {
-        boost::mutex::scoped_lock lock(m_mutex);
-        m_not_full.wait(lock, boost::bind(&bounded_buffer_space_optimized<value_type>::is_not_full, this));
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_not_full.wait(lock, std::bind(&bounded_buffer_space_optimized<value_type>::is_not_full, this));
         m_container.push_front(item);
         lock.unlock();
         m_not_empty.notify_one();
     }
 
     void pop_back(value_type* pItem) {
-        boost::mutex::scoped_lock lock(m_mutex);
-        m_not_empty.wait(lock, boost::bind(&bounded_buffer_space_optimized<value_type>::is_not_empty, this));
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_not_empty.wait(lock, std::bind(&bounded_buffer_space_optimized<value_type>::is_not_empty, this));
         *pItem = m_container.back();
         m_container.pop_back();
         lock.unlock();
@@ -101,9 +99,9 @@ private:
     bool is_not_full() const { return m_container.size() < m_container.capacity(); }
 
     container_type m_container;
-    boost::mutex m_mutex;
-    boost::condition m_not_empty;
-    boost::condition m_not_full;
+    std::mutex m_mutex;
+    std::condition_variable m_not_empty;
+    std::condition_variable m_not_full;
 };
 
 template <class T>
@@ -113,21 +111,21 @@ public:
     typedef std::deque<T> container_type;
     typedef typename container_type::size_type size_type;
     typedef typename container_type::value_type value_type;
-    typedef typename boost::call_traits<value_type>::param_type param_type;
+    typedef const T& param_type;
 
     explicit bounded_buffer_deque_based(size_type capacity) : m_capacity(capacity) {}
 
     void push_front(param_type item) {
-        boost::mutex::scoped_lock lock(m_mutex);
-        m_not_full.wait(lock, boost::bind(&bounded_buffer_deque_based<value_type>::is_not_full, this));
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_not_full.wait(lock, std::bind(&bounded_buffer_deque_based<value_type>::is_not_full, this));
         m_container.push_front(item);
         lock.unlock();
         m_not_empty.notify_one();
     }
 
     void pop_back(value_type* pItem) {
-        boost::mutex::scoped_lock lock(m_mutex);
-        m_not_empty.wait(lock, boost::bind(&bounded_buffer_deque_based<value_type>::is_not_empty, this));
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_not_empty.wait(lock, std::bind(&bounded_buffer_deque_based<value_type>::is_not_empty, this));
         *pItem = m_container.back();
         m_container.pop_back();
         lock.unlock();
@@ -144,9 +142,9 @@ private:
 
     const size_type m_capacity;
     container_type m_container;
-    boost::mutex m_mutex;
-    boost::condition m_not_empty;
-    boost::condition m_not_full;
+    std::mutex m_mutex;
+    std::condition_variable m_not_empty;
+    std::condition_variable m_not_full;
 };
 
 template <class T>
@@ -156,21 +154,21 @@ public:
     typedef std::list<T> container_type;
     typedef typename container_type::size_type size_type;
     typedef typename container_type::value_type value_type;
-    typedef typename boost::call_traits<value_type>::param_type param_type;
+	typedef const T& param_type;
 
     explicit bounded_buffer_list_based(size_type capacity) : m_capacity(capacity) {}
 
     void push_front(param_type item) {
-        boost::mutex::scoped_lock lock(m_mutex);
-        m_not_full.wait(lock, boost::bind(&bounded_buffer_list_based<value_type>::is_not_full, this));
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_not_full.wait(lock, std::bind(&bounded_buffer_list_based<value_type>::is_not_full, this));
         m_container.push_front(item);
         lock.unlock();
         m_not_empty.notify_one();
     }
 
     void pop_back(value_type* pItem) {
-        boost::mutex::scoped_lock lock(m_mutex);
-        m_not_empty.wait(lock, boost::bind(&bounded_buffer_list_based<value_type>::is_not_empty, this));
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_not_empty.wait(lock, std::bind(&bounded_buffer_list_based<value_type>::is_not_empty, this));
         *pItem = m_container.back();
         m_container.pop_back();
         lock.unlock();
@@ -187,9 +185,9 @@ private:
 
     const size_type m_capacity;
     container_type m_container;
-    boost::mutex m_mutex;
-    boost::condition m_not_empty;
-    boost::condition m_not_full;
+    std::mutex m_mutex;
+    std::condition_variable m_not_empty;
+    std::condition_variable m_not_full;
 };
 
 template<class Buffer>
@@ -228,8 +226,6 @@ public:
 template<class Buffer>
 void fifo_test(Buffer* buffer) {
 
-    // Start of measurement
-    boost::progress_timer progress;
 
     // Initialize the buffer with some values before launching producer and consumer threads.
     for (unsigned long i = QUEUE_SIZE / 2L; i > 0; --i) {
@@ -244,8 +240,8 @@ void fifo_test(Buffer* buffer) {
     Producer<Buffer> producer(buffer);
 
     // Start the threads.
-    boost::thread consume(consumer);
-    boost::thread produce(producer);
+    std::thread consume(consumer);
+    std::thread produce(producer);
 
     // Wait for completion.
     consume.join();
@@ -294,23 +290,23 @@ int main(int /*argc*/, char* /*argv*/[]) {
 
 //[bounded_buffer_comparison_output
 
-  Description: Autorun "J:\Cpp\Misc\Debug\bounded_buffer_comparison.exe" 
+  Description: Autorun "J:\Cpp\Misc\Debug\bounded_buffer_comparison.exe"
   bounded_buffer<int> 5.15 s
-  
+
   bounded_buffer_space_optimized<int> 5.71 s
-  
+
   bounded_buffer_deque_based<int> 15.57 s
-  
+
   bounded_buffer_list_based<int> 17.33 s
-  
+
   bounded_buffer<std::string> 24.49 s
-  
+
   bounded_buffer_space_optimized<std::string> 28.33 s
-  
+
   bounded_buffer_deque_based<std::string> 29.45 s
-  
+
   bounded_buffer_list_based<std::string> 31.29 s
-  
+
   //] //[bounded_buffer_comparison_output]
 
 */
