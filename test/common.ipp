@@ -13,6 +13,8 @@
 #include <boost/type_traits/is_nothrow_move_constructible.hpp>
 #include <boost/type_traits/is_nothrow_move_assignable.hpp>
 #include <boost/type_traits/has_nothrow_constructor.hpp>
+#include <boost/move/adl_move_swap.hpp>
+#include <boost/move/move.hpp>
 
 #include <iostream>
 

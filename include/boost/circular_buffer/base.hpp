@@ -26,12 +26,12 @@
 #include <boost/type_traits/is_stateless.hpp>
 #include <boost/type_traits/is_integral.hpp>
 #include <boost/type_traits/is_scalar.hpp>
-#include <boost/type_traits/is_nothrow_move_constructible.hpp>
-#include <boost/type_traits/is_nothrow_move_assignable.hpp>
+//#include <boost/type_traits/is_nothrow_move_constructible.hpp>
+//#include <boost/type_traits/is_nothrow_move_assignable.hpp>
 #include <boost/type_traits/is_copy_constructible.hpp>
 #include <boost/type_traits/conditional.hpp>
-#include <boost/move/adl_move_swap.hpp>
-#include <boost/move/move.hpp>
+//#include <boost/move/adl_move_swap.hpp>
+//#include <boost/move/move.hpp>
 #include <boost/core/pointer_traits.hpp>
 #include <boost/throw_exception.hpp>
 #include <algorithm>
@@ -665,12 +665,12 @@ public:
                         break;
                     }
                     if (is_uninitialized(dest)) {
-                        cb_details::allocator_traits<Alloc>::construct(alloc(), boost::to_address(dest), boost::move_if_noexcept(*src));
+                        cb_details::allocator_traits<Alloc>::construct(alloc(), boost::to_address(dest), std::move_if_noexcept(*src));
                         ++constructed;
                     } else {
-                        value_type tmp = boost::move_if_noexcept(*src);
-                        replace(src, boost::move_if_noexcept(*dest));
-                        replace(dest, boost::move(tmp));
+                        value_type tmp = std::move_if_noexcept(*src);
+                        replace(src, std::move_if_noexcept(*dest));
+                        replace(dest, std::move(tmp));
                     }
                 }
             }
@@ -744,12 +744,12 @@ public:
             difference_type n = new_begin - begin();
             if (m < n) {
                 for (; m > 0; --m) {
-                    push_front(boost::move_if_noexcept(back()));
+                    push_front(std::move_if_noexcept(back()));
                     pop_back();
                 }
             } else {
                 for (; n > 0; --n) {
-                    push_back(boost::move_if_noexcept(front()));
+                    push_back(std::move_if_noexcept(front()));
                     pop_front();
                 }
             }
@@ -1400,11 +1400,12 @@ public:
     */
     void swap(circular_buffer<T, Alloc>& cb) noexcept {
         swap_allocator(cb, is_stateless<allocator_type>());
-        adl_move_swap(m_buff, cb.m_buff);
-        adl_move_swap(m_end, cb.m_end);
-        adl_move_swap(m_first, cb.m_first);
-        adl_move_swap(m_last, cb.m_last);
-        adl_move_swap(m_size, cb.m_size);
+		using std::swap;
+        swap(m_buff, cb.m_buff);
+        swap(m_end, cb.m_end);
+        swap(m_first, cb.m_first);
+        swap(m_last, cb.m_last);
+        swap(m_size, cb.m_size);
 #if BOOST_CB_ENABLE_DEBUG
         invalidate_all_iterators();
         cb.invalidate_all_iterators();
@@ -1489,7 +1490,7 @@ public:
             <code>pop_back()</code>, <code>pop_front()</code>
     */
     void push_back(rvalue_type item) {
-        push_back_impl<rvalue_type>(boost::move(item));
+        push_back_impl<rvalue_type>(std::move(item));
     }
 
     //! Insert a new default-constructed element at the end of the <code>circular_buffer</code>.
@@ -1511,7 +1512,7 @@ public:
     */
     void push_back() {
         value_type temp;
-        push_back(boost::move(temp));
+        push_back(std::move(temp));
     }
 
     //! Insert a new element at the beginning of the <code>circular_buffer</code>.
@@ -1553,7 +1554,7 @@ public:
             <code>pop_back()</code>, <code>pop_front()</code>
     */
     void push_front(rvalue_type item) {
-        push_front_impl<rvalue_type>(boost::move(item));
+        push_front_impl<rvalue_type>(std::move(item));
     }
 
     //! Insert a new default-constructed element at the beginning of the <code>circular_buffer</code>.
@@ -1575,7 +1576,7 @@ public:
     */
     void push_front() {
         value_type temp;
-        push_front(boost::move(temp));
+        push_front(std::move(temp));
     }
 
     //! Remove the last element from the <code>circular_buffer</code>.
@@ -1698,7 +1699,7 @@ public:
             <code>rinsert(iterator, InputIterator, InputIterator)</code>
     */
     iterator insert(iterator pos, rvalue_type item) {
-        return insert_impl<rvalue_type>(pos, boost::move(item));
+        return insert_impl<rvalue_type>(pos, std::move(item));
     }
 
     //! Insert a default-constructed element at the specified position.
@@ -1733,7 +1734,7 @@ public:
     */
     iterator insert(iterator pos) {
         value_type temp;
-        return insert(pos, boost::move(temp));
+        return insert(pos, std::move(temp));
     }
 
     //! Insert <code>n</code> copies of the <code>item</code> at the specified position.
@@ -1862,7 +1863,7 @@ private:
             bool construct = !full();
             try {
                 while (src != pos.m_it) {
-                    construct_or_replace(construct, dest, boost::move_if_noexcept(*src));
+                    construct_or_replace(construct, dest, std::move_if_noexcept(*src));
                     increment(src);
                     increment(dest);
                     construct = false;
@@ -1951,7 +1952,7 @@ public:
             <code>insert(iterator, InputIterator, InputIterator)</code>
     */
     iterator rinsert(iterator pos, rvalue_type item) {
-        return rinsert_impl<rvalue_type>(pos, boost::move(item));
+        return rinsert_impl<rvalue_type>(pos, std::move(item));
     }
 
     //! Insert an element before the specified position.
@@ -1985,7 +1986,7 @@ public:
     */
     iterator rinsert(iterator pos) {
         value_type temp;
-        return rinsert(pos, boost::move(temp));
+        return rinsert(pos, std::move(temp));
     }
 
     //! Insert <code>n</code> copies of the <code>item</code> before the specified position.
@@ -2109,7 +2110,7 @@ public:
         pointer next = pos.m_it;
         increment(next);
         for (pointer p = pos.m_it; next != m_last; p = next, increment(next))
-            replace(p, boost::move_if_noexcept(*next));
+            replace(p, std::move_if_noexcept(*next));
         decrement(m_last);
         destroy_item(m_last);
         --m_size;
@@ -2148,7 +2149,7 @@ public:
             return first;
         pointer p = first.m_it;
         while (last.m_it != 0)
-            replace((first++).m_it, boost::move_if_noexcept(*last++));
+            replace((first++).m_it, std::move_if_noexcept(*last++));
         do {
             decrement(m_last);
             destroy_item(m_last);
@@ -2186,7 +2187,7 @@ public:
         pointer prev = pos.m_it;
         pointer p = prev;
         for (decrement(prev); p != m_first; p = prev, decrement(prev))
-            replace(p, boost::move_if_noexcept(*prev));
+            replace(p, std::move_if_noexcept(*prev));
         destroy_item(m_first);
         increment(m_first);
         --m_size;
@@ -2231,7 +2232,7 @@ public:
         while (first.m_it != m_first) {
             decrement(first.m_it);
             decrement(p);
-            replace(p, boost::move_if_noexcept(*first.m_it));
+            replace(p, std::move_if_noexcept(*first.m_it));
         }
         do {
             destroy_item(m_first);
@@ -2409,7 +2410,7 @@ private:
 
     //! Replace an element.
     void replace(pointer pos, rvalue_type item) {
-        *pos = boost::move(item);
+        *pos = std::move(item);
 #if BOOST_CB_ENABLE_DEBUG
         invalidate_iterators(iterator(this, pos));
 #endif
@@ -2434,9 +2435,9 @@ private:
     */
     void construct_or_replace(bool construct, pointer pos, rvalue_type item) {
         if (construct)
-            cb_details::allocator_traits<Alloc>::construct(alloc(), boost::to_address(pos), boost::move(item));
+            cb_details::allocator_traits<Alloc>::construct(alloc(), boost::to_address(pos), std::move(item));
         else
-            replace(pos, boost::move(item));
+            replace(pos, std::move(item));
     }
 
     //! Destroy an item.
@@ -2628,7 +2629,8 @@ private:
 
     //! Specialized method for swapping the allocator.
     void swap_allocator(circular_buffer<T, Alloc>& cb, const false_type&) {
-        adl_move_swap(alloc(), cb.alloc());
+		using std::swap;
+        std::swap(alloc(), cb.alloc());
     }
 
     //! Specialized assign method.
@@ -2747,7 +2749,7 @@ private:
             try {
                 while (src != p) {
                     decrement(src);
-                    construct_or_replace(construct, dest, boost::move_if_noexcept(*src));
+                    construct_or_replace(construct, dest, std::move_if_noexcept(*src));
                     decrement(dest);
                     construct = false;
                 }
