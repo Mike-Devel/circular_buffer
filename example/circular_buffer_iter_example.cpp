@@ -14,7 +14,6 @@
 #define BOOST_CB_ENABLE_DEBUG 0 // The Debug Support has to be disabled, otherwise the code produces a runtime error.
 
 #include <boost/circular_buffer.hpp>
-#include <boost/assert.hpp>
 #include <assert.h>
 
 int main(int /*argc*/, char* /*argv*/[])
