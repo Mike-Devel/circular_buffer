@@ -19,6 +19,8 @@
 
 #include <boost/circular_buffer/allocators.hpp>
 
+#include <boost/circular_buffer/ext.hpp>
+
 #include <iterator>
 #include <type_traits>
 
@@ -422,10 +424,10 @@ inline ForwardIterator uninitialized_copy(InputIterator first, InputIterator las
     ForwardIterator next = dest;
     try {
         for (; first != last; ++first, ++dest)
-            allocator_traits<Alloc>::construct(a, boost::to_address(dest), *first);
+            allocator_traits<Alloc>::construct(a, utils::to_address(dest), *first);
     } catch(...) {
         for (; next != dest; ++next)
-            allocator_traits<Alloc>::destroy(a, boost::to_address(next));
+            allocator_traits<Alloc>::destroy(a, utils::to_address(next));
 		throw ;
     }
     return dest;
@@ -435,7 +437,7 @@ template<class InputIterator, class ForwardIterator, class Alloc>
 ForwardIterator uninitialized_move_if_noexcept_impl(InputIterator first, InputIterator last, ForwardIterator dest, Alloc& a,
     std::true_type) {
     for (; first != last; ++first, ++dest)
-        allocator_traits<Alloc>::construct(a, boost::to_address(dest), std::move(*first));
+        allocator_traits<Alloc>::construct(a, utils::to_address(dest), std::move(*first));
     return dest;
 }
 
@@ -464,10 +466,10 @@ inline void uninitialized_fill_n_with_alloc(ForwardIterator first, Diff n, const
     ForwardIterator next = first;
     try {
         for (; n > 0; ++first, --n)
-            allocator_traits<Alloc>::construct(alloc, boost::to_address(first), item);
+            allocator_traits<Alloc>::construct(alloc, utils::to_address(first), item);
     } catch(...) {
         for (; next != first; ++next)
-            allocator_traits<Alloc>::destroy(alloc, boost::to_address(next));
+            allocator_traits<Alloc>::destroy(alloc, utils::to_address(next));
 		throw;
     }
 }

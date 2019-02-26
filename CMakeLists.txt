@@ -23,10 +23,6 @@ target_link_libraries(boost_circular_buffer INTERFACE
     Boost::concept_check
     Boost::config
     Boost::core
-    Boost::move
-    Boost::static_assert
-    Boost::throw_exception
-    Boost::type_traits
 )
 
 enable_testing()

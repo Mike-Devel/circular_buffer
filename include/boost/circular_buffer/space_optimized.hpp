@@ -494,7 +494,7 @@ public:
     circular_buffer_space_optimized(capacity_type capacity_ctrl, InputIterator first, InputIterator last,
         const allocator_type& alloc = allocator_type())
     : circular_buffer<T, Alloc>(
-        init_capacity(capacity_ctrl, first, last, is_integral<InputIterator>()),
+        init_capacity(capacity_ctrl, first, last, std::is_integral<InputIterator>()),
         first, last, alloc)
     , m_capacity_ctrl(capacity_ctrl) {
         reduce_capacity(
@@ -1143,7 +1143,7 @@ public:
     */
     template <class InputIterator>
     void insert(iterator pos, InputIterator first, InputIterator last) {
-        insert(pos, first, last, is_integral<InputIterator>());
+        insert(pos, first, last, std::is_integral<InputIterator>());
     }
 
     //! Insert an element before the specified position.
@@ -1356,7 +1356,7 @@ public:
     */
     template <class InputIterator>
     void rinsert(iterator pos, InputIterator first, InputIterator last) {
-        rinsert(pos, first, last, is_integral<InputIterator>());
+        rinsert(pos, first, last, std::is_integral<InputIterator>());
     }
 
     //! Remove an element at the specified position.
@@ -1581,14 +1581,14 @@ private:
     //! Specialized method for determining the initial capacity.
     template <class IntegralType>
     static size_type init_capacity(const capacity_type& capacity_ctrl, IntegralType n, IntegralType,
-        const true_type&) {
+        const std::true_type&) {
         return init_capacity(capacity_ctrl, static_cast<size_type>(n));
     }
 
     //! Specialized method for determining the initial capacity.
     template <class Iterator>
     static size_type init_capacity(const capacity_type& capacity_ctrl, Iterator first, Iterator last,
-        const false_type&) {
+        const std::false_type&) {
         BOOST_CB_IS_CONVERTIBLE(Iterator, value_type); // check for invalid iterator type
         return init_capacity(
             capacity_ctrl, first, last, typename std::iterator_traits<Iterator>::iterator_category());
@@ -1612,13 +1612,13 @@ private:
 
     //! Specialized insert method.
     template <class IntegralType>
-    void insert(const iterator& pos, IntegralType n, IntegralType item, const true_type&) {
+    void insert(const iterator& pos, IntegralType n, IntegralType item, const std::true_type&) {
         insert(pos, static_cast<size_type>(n), static_cast<value_type>(item));
     }
 
     //! Specialized insert method.
     template <class Iterator>
-    void insert(const iterator& pos, Iterator first, Iterator last, const false_type&) {
+    void insert(const iterator& pos, Iterator first, Iterator last, const std::false_type&) {
         size_type index = pos - begin();
         check_low_capacity(std::distance(first, last));
         circular_buffer<T, Alloc>::insert(begin() + index, first, last);
@@ -1626,13 +1626,13 @@ private:
 
     //! Specialized rinsert method.
     template <class IntegralType>
-    void rinsert(const iterator& pos, IntegralType n, IntegralType item, const true_type&) {
+    void rinsert(const iterator& pos, IntegralType n, IntegralType item, const std::true_type&) {
         rinsert(pos, static_cast<size_type>(n), static_cast<value_type>(item));
     }
 
     //! Specialized rinsert method.
     template <class Iterator>
-    void rinsert(const iterator& pos, Iterator first, Iterator last, const false_type&) {
+    void rinsert(const iterator& pos, Iterator first, Iterator last, const std::false_type&) {
         size_type index = pos - begin();
         check_low_capacity(std::distance(first, last));
         circular_buffer<T, Alloc>::rinsert(begin() + index, first, last);
