@@ -1,8 +1,16 @@
 #pragma once
 
+/*
+Copyright 2017-2018 Glen Joseph Fernandes
+(glenjofe@gmail.com)
+Distributed under the Boost Software License, Version 1.0.
+(http://www.boost.org/LICENSE_1_0.txt)
+*/
+// This header mostly contains helper functions and types that where copied from Boost.Core
+// or are rewritten replacements for such
+
 #include <type_traits>
 #include <iterator>
-
 
 namespace utils {
 	template<class T>

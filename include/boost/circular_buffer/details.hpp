@@ -17,9 +17,8 @@
 #endif
 
 
-#include <boost/circular_buffer/allocators.hpp>
-
-#include <boost/circular_buffer/ext.hpp>
+#include "allocators.hpp"
+#include "ext.hpp"
 
 #include <iterator>
 #include <type_traits>

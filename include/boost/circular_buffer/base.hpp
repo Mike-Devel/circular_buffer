@@ -14,9 +14,8 @@
 #if !defined(BOOST_CIRCULAR_BUFFER_BASE_HPP)
 #define BOOST_CIRCULAR_BUFFER_BASE_HPP
 
-#include <boost/circular_buffer/allocators.hpp>
-
-#include <boost/circular_buffer/ext.hpp>
+#include "allocators.hpp"
+#include "ext.hpp"
 
 #include <algorithm>
 #include <iterator>
@@ -2500,15 +2499,13 @@ private:
     //! Specialized initialize method.
     template <class Iterator>
     void initialize(Iterator first, Iterator last, const std::false_type&) {
-        BOOST_CB_IS_CONVERTIBLE(Iterator, value_type); // check for invalid iterator type
+        utils::assert_is_convertible<Iterator, value_type>(); // check for invalid iterator type
         initialize(first, last, typename std::iterator_traits<Iterator>::iterator_category());
     }
 
     //! Specialized initialize method.
     template <class InputIterator>
     void initialize(InputIterator first, InputIterator last, const std::input_iterator_tag&) {
-        BOOST_CB_ASSERT_TEMPLATED_ITERATOR_CONSTRUCTORS // check if the STL provides templated iterator constructors
-                                                        // for containers
         std::deque<value_type, allocator_type> tmp(first, last, alloc());
         size_type distance = tmp.size();
         initialize(distance, std::make_move_iterator(tmp.begin()), std::make_move_iterator(tmp.end()), distance);

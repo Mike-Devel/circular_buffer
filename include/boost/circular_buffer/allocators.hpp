@@ -10,12 +10,9 @@
 
 #include <limits>
 #include <memory>
-#include <new>
-#include <utility>
 
 namespace boost {
 namespace cb_details {
-
 
 template<class A>
 struct allocator_traits
@@ -27,7 +24,6 @@ struct allocator_traits
         return (std::numeric_limits<size_type>::max)() / sizeof(value_type);
     }
 };
-
 
 } // cb_details
 } // boost

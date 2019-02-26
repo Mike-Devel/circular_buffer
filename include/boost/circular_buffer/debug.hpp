@@ -11,13 +11,9 @@
 
 #if BOOST_CB_ENABLE_DEBUG
 #include <cstring>
-#endif // BOOST_CB_ENABLE_DEBUG
 
 namespace boost {
-
 namespace cb_details {
-
-#if BOOST_CB_ENABLE_DEBUG
 
 // The value the uninitialized memory is filled with.
 const int UNINITIALIZED = 0xcc;
@@ -229,10 +225,10 @@ inline void debug_iterator_base::unregister_self() {
         m_registry->unregister_iterator(this);
 }
 
-#endif // #if BOOST_CB_ENABLE_DEBUG
 
 } // namespace cb_details
 
 } // namespace boost
 
+#endif // #if BOOST_CB_ENABLE_DEBUG
 #endif // #if !defined(BOOST_CIRCULAR_BUFFER_DEBUG_HPP)

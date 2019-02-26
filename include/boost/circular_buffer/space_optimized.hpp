@@ -11,6 +11,8 @@
 #if !defined(BOOST_CIRCULAR_BUFFER_SPACE_OPTIMIZED_HPP)
 #define BOOST_CIRCULAR_BUFFER_SPACE_OPTIMIZED_HPP
 
+#include "ext.hpp"
+
 #include <type_traits>
 
 namespace boost {
@@ -1589,7 +1591,7 @@ private:
     template <class Iterator>
     static size_type init_capacity(const capacity_type& capacity_ctrl, Iterator first, Iterator last,
         const std::false_type&) {
-        BOOST_CB_IS_CONVERTIBLE(Iterator, value_type); // check for invalid iterator type
+		utils::assert_is_convertible< Iterator, value_type>(); // check for invalid iterator type
         return init_capacity(
             capacity_ctrl, first, last, typename std::iterator_traits<Iterator>::iterator_category());
     }
