@@ -5,8 +5,12 @@
 # (http://www.boost.org/LICENSE_1_0.txt)
 
 cmake_minimum_required(VERSION 3.5)
-
+add_definitions(-DBOOST_ALL_NO_LIB)
 project(BoostCircularBuffer LANGUAGES CXX)
+
+set(boost_main_excluded_libs coroutine;context;hof;hana;yap;gil;beast;circular_buffer;compute;histogram;outcome;safe_numerics CACHE string "List of libraries that will be excluded from cmake build (format: lib1;lib2;lib3)")
+
+add_subdirectory(E:\\xRepos\\boost\\boost_ref\\boost boost_libs)
 
 add_library(boost_circular_buffer INTERFACE)
 
@@ -22,4 +26,8 @@ target_link_libraries(boost_circular_buffer INTERFACE
     Boost::move
     Boost::static_assert
     Boost::throw_exception
-    Boost::type_traits)
+    Boost::type_traits
+)
+
+enable_testing()
+add_subdirectory(test)

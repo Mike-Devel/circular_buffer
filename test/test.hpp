@@ -15,8 +15,10 @@
 
 #define BOOST_CB_TEST
 
+#define CATCH_CONFIG_MAIN
+
 #include <boost/circular_buffer.hpp>
-#include <boost/test/included/unit_test.hpp>
+#include <catch2/catch.hpp>
 #include <iterator>
 #include <numeric>
 #include <vector>
@@ -139,7 +141,6 @@ inline ptrdiff_t* distance_type(const MyInputIterator&) { return 0; }
 
 #endif // #if defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION) && !defined(BOOST_MSVC_STD_ITERATOR)
 
-using boost::unit_test::test_suite;
 using namespace boost;
 using namespace std;
 

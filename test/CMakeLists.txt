@@ -1,0 +1,35 @@
+
+find_package(Catch2 CONFIG REQUIRED)
+
+add_executable(circular_buffer_base_test base_test.cpp)
+target_link_libraries(circular_buffer_base_test PRIVATE Boost::circular_buffer Catch2::Catch2)
+
+add_executable(circular_buffer_bounded_buffer_comparison bounded_buffer_comparison.cpp)
+target_link_libraries(circular_buffer_bounded_buffer_comparison PRIVATE Boost::circular_buffer Catch2::Catch2)
+
+add_executable(circular_buffer_constant_erase_test  constant_erase_test.cpp)
+target_link_libraries(circular_buffer_constant_erase_test  PRIVATE Boost::circular_buffer Catch2::Catch2)
+
+add_executable(circular_buffer_soft_iterator_invalidation  soft_iterator_invalidation.cpp)
+target_link_libraries(circular_buffer_soft_iterator_invalidation PRIVATE Boost::circular_buffer Catch2::Catch2)
+
+add_executable(circular_buffer_space_optimized_test  space_optimized_test.cpp)
+target_link_libraries(circular_buffer_space_optimized_test  PRIVATE Boost::circular_buffer Catch2::Catch2)
+
+add_executable(circular_buffer_base_test_dbg base_test.cpp)
+target_link_libraries(circular_buffer_base_test_dbg PRIVATE Boost::circular_buffer Catch2::Catch2)
+target_compile_definitions(circular_buffer_base_test_dbg  PRIVATE /DBOOST_CB_ENABLE_DEBUG=1)
+
+add_executable(circular_buffer_space_optimized_test_dbg  space_optimized_test.cpp)
+target_link_libraries(circular_buffer_space_optimized_test_dbg   PRIVATE Boost::circular_buffer Catch2::Catch2)
+target_compile_definitions(circular_buffer_space_optimized_test_dbg PRIVATE /DBOOST_CB_ENABLE_DEBUG=1)
+
+add_test(circular_buffer_base_test						circular_buffer_base_test)
+add_test(circular_buffer_bounded_buffer_comparison		circular_buffer_bounded_buffer_comparison)
+add_test(circular_buffer_constant_erase_test			circular_buffer_constant_erase_test)
+add_test(circular_buffer_soft_iterator_invalidation		circular_buffer_soft_iterator_invalidation)
+add_test(circular_buffer_space_optimized_test			circular_buffer_space_optimized_test)
+
+add_test(circular_buffer_base_test_dbg					circular_buffer_base_test_dbg)
+add_test(circular_buffer_space_optimized_test_dbg		circular_buffer_space_optimized_test_dbg)
+

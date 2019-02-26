@@ -25,35 +25,35 @@ void erase_begin_test() {
 
     cb1.erase_begin(2);
 
-    BOOST_CHECK(cb1.size() == 3);
-    BOOST_CHECK(cb1[0] == 4);
-    BOOST_CHECK(cb1[1] == 5);
-    BOOST_CHECK(cb1[2] == 6);
+    CHECK(cb1.size() == 3);
+    CHECK(cb1[0] == 4);
+    CHECK(cb1[1] == 5);
+    CHECK(cb1[2] == 6);
 
     cb1.erase_begin(3);
-    BOOST_CHECK(cb1.empty());
-    BOOST_CHECK(*p == 2);
-    BOOST_CHECK(*(p + 1) == 3);
-    BOOST_CHECK(*(p + 2) == 4);
+    CHECK(cb1.empty());
+    CHECK(*p == 2);
+    CHECK(*(p + 1) == 3);
+    CHECK(*(p + 2) == 4);
 
     cb1.push_back(10);
     cb1.push_back(11);
     cb1.push_back(12);
 
-    BOOST_CHECK(cb1.size() == 3);
-    BOOST_CHECK(cb1[0] == 10);
-    BOOST_CHECK(cb1[1] == 11);
-    BOOST_CHECK(cb1[2] == 12);
+    CHECK(cb1.size() == 3);
+    CHECK(cb1[0] == 10);
+    CHECK(cb1[1] == 11);
+    CHECK(cb1[2] == 12);
 
     circular_buffer<InstanceCounter> cb2(5, InstanceCounter());
 
-    BOOST_CHECK(cb2.size() == 5);
-    BOOST_CHECK(InstanceCounter::count() == 5);
+    CHECK(cb2.size() == 5);
+    CHECK(InstanceCounter::count() == 5);
 
     cb2.erase_begin(2);
 
-    BOOST_CHECK(cb2.size() == 3);
-    BOOST_CHECK(InstanceCounter::count() == 3);
+    CHECK(cb2.size() == 3);
+    CHECK(InstanceCounter::count() == 3);
 
     circular_buffer<MyInteger> cb3(5);
     cb3.push_back(1);
@@ -64,10 +64,10 @@ void erase_begin_test() {
     cb3.push_back(6);
     cb3.erase_begin(2);
 
-    BOOST_CHECK(cb3.size() == 3);
-    BOOST_CHECK(cb3[0] == 4);
-    BOOST_CHECK(cb3[1] == 5);
-    BOOST_CHECK(cb3[2] == 6);
+    CHECK(cb3.size() == 3);
+    CHECK(cb3[0] == 4);
+    CHECK(cb3[1] == 5);
+    CHECK(cb3[2] == 6);
 }
 
 void erase_end_test() {
@@ -84,35 +84,35 @@ void erase_end_test() {
 
     cb1.erase_end(2);
 
-    BOOST_CHECK(cb1.size() == 3);
-    BOOST_CHECK(cb1[0] == 2);
-    BOOST_CHECK(cb1[1] == 3);
-    BOOST_CHECK(cb1[2] ==4);
+    CHECK(cb1.size() == 3);
+    CHECK(cb1[0] == 2);
+    CHECK(cb1[1] == 3);
+    CHECK(cb1[2] ==4);
 
     cb1.erase_end(3);
-    BOOST_CHECK(cb1.empty());
-    BOOST_CHECK(*p == 5);
-    BOOST_CHECK(*(p - 1) == 4);
-    BOOST_CHECK(*(p - 2) == 3);
+    CHECK(cb1.empty());
+    CHECK(*p == 5);
+    CHECK(*(p - 1) == 4);
+    CHECK(*(p - 2) == 3);
 
     cb1.push_back(10);
     cb1.push_back(11);
     cb1.push_back(12);
 
-    BOOST_CHECK(cb1.size() == 3);
-    BOOST_CHECK(cb1[0] == 10);
-    BOOST_CHECK(cb1[1] == 11);
-    BOOST_CHECK(cb1[2] == 12);
+    CHECK(cb1.size() == 3);
+    CHECK(cb1[0] == 10);
+    CHECK(cb1[1] == 11);
+    CHECK(cb1[2] == 12);
 
     circular_buffer<InstanceCounter> cb2(5, InstanceCounter());
 
-    BOOST_CHECK(cb2.size() == 5);
-    BOOST_CHECK(InstanceCounter::count() == 5);
+    CHECK(cb2.size() == 5);
+    CHECK(InstanceCounter::count() == 5);
 
     cb2.erase_end(2);
 
-    BOOST_CHECK(cb2.size() == 3);
-    BOOST_CHECK(InstanceCounter::count() == 3);
+    CHECK(cb2.size() == 3);
+    CHECK(InstanceCounter::count() == 3);
 
     circular_buffer<MyInteger> cb3(5);
     cb3.push_back(1);
@@ -123,10 +123,10 @@ void erase_end_test() {
     cb3.push_back(6);
     cb3.erase_end(2);
 
-    BOOST_CHECK(cb3.size() == 3);
-    BOOST_CHECK(cb3[0] == 2);
-    BOOST_CHECK(cb3[1] == 3);
-    BOOST_CHECK(cb3[2] == 4);
+    CHECK(cb3.size() == 3);
+    CHECK(cb3[0] == 2);
+    CHECK(cb3[1] == 3);
+    CHECK(cb3[2] == 4);
 }
 
 void clear_test() {
@@ -143,22 +143,22 @@ void clear_test() {
 
     cb1.clear();
 
-    BOOST_CHECK(cb1.empty());
-    BOOST_CHECK(*p == 2);
-    BOOST_CHECK(*(p + 1) == 3);
-    BOOST_CHECK(*(p + 2) == 4);
-    BOOST_CHECK(*(p + 3) == 5);
-    BOOST_CHECK(*(p - 1) == 6);
+    CHECK(cb1.empty());
+    CHECK(*p == 2);
+    CHECK(*(p + 1) == 3);
+    CHECK(*(p + 2) == 4);
+    CHECK(*(p + 3) == 5);
+    CHECK(*(p - 1) == 6);
 
     circular_buffer<InstanceCounter> cb2(5, InstanceCounter());
 
-    BOOST_CHECK(cb2.size() == 5);
-    BOOST_CHECK(InstanceCounter::count() == 5);
+    CHECK(cb2.size() == 5);
+    CHECK(InstanceCounter::count() == 5);
 
     cb2.clear();
 
-    BOOST_CHECK(cb2.empty());
-    BOOST_CHECK(InstanceCounter::count() == 0);
+    CHECK(cb2.empty());
+    CHECK(InstanceCounter::count() == 0);
 
     circular_buffer<MyInteger> cb3(5);
     cb3.push_back(1);
@@ -169,17 +169,16 @@ void clear_test() {
     cb3.push_back(6);
     cb3.clear();
 
-    BOOST_CHECK(cb3.empty());
+    CHECK(cb3.empty());
 }
 
 // test main
-test_suite* init_unit_test_suite(int /*argc*/, char* /*argv*/[]) {
+TEST_CASE( "constant_erase_test","[circular_buffer]") {
 
-    test_suite* tests = BOOST_TEST_SUITE("Unit tests for erase_begin/end and clear methods of the circular_buffer.");
 
-    tests->add(BOOST_TEST_CASE(&erase_begin_test));
-    tests->add(BOOST_TEST_CASE(&erase_end_test));
-    tests->add(BOOST_TEST_CASE(&clear_test));
+    erase_begin_test();
+    erase_end_test();
+    clear_test();
 
-    return tests;
+
 }
