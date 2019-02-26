@@ -56,12 +56,12 @@ namespace utils {
 				empty_value() = default;
 
 
-				empty_value(boost::empty_init_t)
+				empty_value(utils::empty_init_t)
 					: value_() { }
 
 
 				template<class... Args>
-				explicit empty_value(boost::empty_init_t, Args&&... args)
+				explicit empty_value(utils::empty_init_t, Args&&... args)
 					: value_(std::forward<Args>(args)...) { }
 
 

@@ -790,7 +790,7 @@ public:
     */
     void push_back(rvalue_type item) {
         check_low_capacity();
-        circular_buffer<T, Alloc>::push_back(boost::move(item));
+        circular_buffer<T, Alloc>::push_back(std::move(item));
     }
 
     //! Insert a new element at the end of the space optimized circular buffer.
@@ -865,7 +865,7 @@ public:
     */
     void push_front(rvalue_type item) {
         check_low_capacity();
-        circular_buffer<T, Alloc>::push_front(boost::move(item));
+        circular_buffer<T, Alloc>::push_front(std::move(item));
     }
 
     //! Insert a new element at the beginning of the space optimized circular buffer.
@@ -1011,7 +1011,7 @@ public:
     iterator insert(iterator pos, rvalue_type item) {
         size_type index = pos - begin();
         check_low_capacity();
-        return circular_buffer<T, Alloc>::insert(begin() + index, boost::move(item));
+        return circular_buffer<T, Alloc>::insert(begin() + index, std::move(item));
     }
 
     //! Insert an element at the specified position.
@@ -1222,7 +1222,7 @@ public:
     iterator rinsert(iterator pos, rvalue_type item) {
         size_type index = pos - begin();
         check_low_capacity();
-        return circular_buffer<T, Alloc>::rinsert(begin() + index, boost::move(item));
+        return circular_buffer<T, Alloc>::rinsert(begin() + index, std::move(item));
     }
 
     //! Insert an element before the specified position.
