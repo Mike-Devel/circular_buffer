@@ -11,18 +11,13 @@
 #if !defined(BOOST_CIRCULAR_BUFFER_SPACE_OPTIMIZED_HPP)
 #define BOOST_CIRCULAR_BUFFER_SPACE_OPTIMIZED_HPP
 
-#if defined(_MSC_VER)
-    #pragma once
-#endif
-
-#include <boost/type_traits/is_same.hpp>
-#include <boost/config/workaround.hpp>
+#include <type_traits>
 
 namespace boost {
 
 /*!
     \class circular_buffer_space_optimized
-    \brief Space optimized circular buffer container adaptor. 
+    \brief Space optimized circular buffer container adaptor.
            <code>T</code> must be a copyable class or must have an noexcept move constructor
            and move assignment operator.
 */
@@ -120,13 +115,7 @@ public:<br>
     using circular_buffer<T, Alloc>::size;
     using circular_buffer<T, Alloc>::max_size;
     using circular_buffer<T, Alloc>::empty;
-
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
-    reference operator [] (size_type n) { return circular_buffer<T, Alloc>::operator[](n); }
-    const_reference operator [] (size_type n) const { return circular_buffer<T, Alloc>::operator[](n); }
-#else
     using circular_buffer<T, Alloc>::operator[];
-#endif
 
 private:
 // Member variables
@@ -150,7 +139,7 @@ public:
              Constant (in the size of the <code>circular_buffer_space_optimized</code>).
         \sa <code>empty()</code>
     */
-    bool full() const BOOST_NOEXCEPT { return m_capacity_ctrl == size(); }
+    bool full() const noexcept { return m_capacity_ctrl == size(); }
 
     /*! \brief Get the maximum number of elements which can be inserted into the
                <code>circular_buffer_space_optimized</code> without overwriting any of already stored elements.
@@ -164,7 +153,7 @@ public:
              Constant (in the size of the <code>circular_buffer_space_optimized</code>).
         \sa <code>capacity()</code>, <code>size()</code>, <code>max_size()</code>
     */
-    size_type reserve() const BOOST_NOEXCEPT { return m_capacity_ctrl - size(); }
+    size_type reserve() const noexcept { return m_capacity_ctrl - size(); }
 
     //! Get the capacity of the <code>circular_buffer_space_optimized</code>.
     /*!
@@ -180,7 +169,7 @@ public:
         \sa <code>reserve()</code>, <code>size()</code>, <code>max_size()</code>,
             <code>set_capacity(const capacity_type&)</code>
     */
-    const capacity_type& capacity() const BOOST_NOEXCEPT { return m_capacity_ctrl; }
+    const capacity_type& capacity() const noexcept { return m_capacity_ctrl; }
 
 #if defined(BOOST_CB_TEST)
 
@@ -189,7 +178,7 @@ public:
        \note This method is not intended to be used directly by the user.
              It is defined only for testing purposes.
     */
-    size_type internal_capacity() const BOOST_NOEXCEPT { return circular_buffer<T, Alloc>::capacity(); }
+    size_type internal_capacity() const noexcept { return circular_buffer<T, Alloc>::capacity(); }
 
 #endif // #if defined(BOOST_CB_TEST)
 
@@ -349,7 +338,7 @@ public:
         \warning Since Boost version 1.36 the behaviour of this constructor has changed. Now it creates a space
                  optimized circular buffer with zero capacity.
     */
-    explicit circular_buffer_space_optimized(const allocator_type& alloc = allocator_type()) BOOST_NOEXCEPT
+    explicit circular_buffer_space_optimized(const allocator_type& alloc = allocator_type()) noexcept
     : circular_buffer<T, Alloc>(0, alloc)
     , m_capacity_ctrl(0) {}
 
@@ -434,7 +423,7 @@ public:
 
 #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
     //! The move constructor.
-    /*! \brief Move constructs a <code>circular_buffer_space_optimized</code> from <code>cb</code>, 
+    /*! \brief Move constructs a <code>circular_buffer_space_optimized</code> from <code>cb</code>,
                 leaving <code>cb</code> empty.
         \pre C++ compiler with rvalue references support.
         \post <code>cb.empty()</code>
@@ -442,7 +431,7 @@ public:
         \throws Nothing.
         \par Constant.
     */
-    circular_buffer_space_optimized(circular_buffer_space_optimized<T, Alloc>&& cb) BOOST_NOEXCEPT
+    circular_buffer_space_optimized(circular_buffer_space_optimized<T, Alloc>&& cb) noexcept
     : circular_buffer<T, Alloc>()
     , m_capacity_ctrl(0) {
         cb.swap(*this);
@@ -463,7 +452,7 @@ public:
         \param alloc The allocator.
         \throws "An allocation error" if memory is exhausted (<code>std::bad_alloc</code> if the standard allocator is
                 used).
-                Whatever <code>T::T(const T&)</code> throws or nothing if <code>T::T(T&&)</code> is noexcept 
+                Whatever <code>T::T(const T&)</code> throws or nothing if <code>T::T(T&&)</code> is noexcept
                 and <code>InputIterator</code> is a move iterator.
         \par Complexity
              Linear (in the <code>std::distance(first, last)</code>).
@@ -509,7 +498,7 @@ public:
         first, last, alloc)
     , m_capacity_ctrl(capacity_ctrl) {
         reduce_capacity(
-            is_same< BOOST_DEDUCED_TYPENAME std::iterator_traits<InputIterator>::iterator_category, std::input_iterator_tag >());
+            std::is_same< typename std::iterator_traits<InputIterator>::iterator_category, std::input_iterator_tag >());
     }
 
 #if defined(BOOST_CB_NEVER_DEFINED)
@@ -568,7 +557,6 @@ public:
         return *this;
     }
 
-#ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
     /*! \brief Move assigns content of <code>cb</code> to <code>*this</code>, leaving <code>cb</code> empty.
         \pre C++ compiler with rvalue references support.
         \post <code>cb.empty()</code>
@@ -577,14 +565,12 @@ public:
         \par Complexity
              Constant.
     */
-    circular_buffer_space_optimized<T, Alloc>& operator = (circular_buffer_space_optimized<T, Alloc>&& cb) BOOST_NOEXCEPT {
+    circular_buffer_space_optimized<T, Alloc>& operator = (circular_buffer_space_optimized<T, Alloc>&& cb) noexcept {
         cb.swap(*this); // now `this` holds `cb`
         circular_buffer<T, Alloc>(get_allocator()) // temporary that holds initial `cb` allocator
             .swap(cb); // makes `cb` empty
         return *this;
     }
-#endif // BOOST_NO_CXX11_RVALUE_REFERENCES
-
 
     //! Assign <code>n</code> items into the space optimized circular buffer.
     /*!
@@ -664,7 +650,7 @@ public:
         \param last The end of the range to be copied.
         \throws "An allocation error" if memory is exhausted (<code>std::bad_alloc</code> if the standard allocator is
                 used).
-                Whatever <code>T::T(const T&)</code> throws or nothing if <code>T::T(T&&)</code> is noexcept and 
+                Whatever <code>T::T(const T&)</code> throws or nothing if <code>T::T(T&&)</code> is noexcept and
                 <code>InputIterator</code> is a move iterator.
         \par Exception Safety
              Basic.
@@ -705,7 +691,7 @@ public:
         \param last The end of the range to be copied.
         \throws "An allocation error" if memory is exhausted (<code>std::bad_alloc</code> if the standard allocator is
                 used).
-                Whatever <code>T::T(const T&)</code> throws or nothing if <code>T::T(T&&)</code> is noexcept and 
+                Whatever <code>T::T(const T&)</code> throws or nothing if <code>T::T(T&&)</code> is noexcept and
                 <code>InputIterator</code> is a move iterator.
         \par Exception Safety
              Basic.
@@ -744,14 +730,14 @@ public:
              otherwise an assertion will report an error if such invalidated iterator is used.)
         \par Complexity
              Constant (in the size of the <code>circular_buffer_space_optimized</code>).
-        \sa <code>swap(circular_buffer<T, Alloc>&, circular_buffer<T, Alloc>&)</code>, 
+        \sa <code>swap(circular_buffer<T, Alloc>&, circular_buffer<T, Alloc>&)</code>,
             <code>swap(circular_buffer_space_optimized<T, Alloc>&, circular_buffer_space_optimized<T, Alloc>&)</code>
 
 
     */
     // Note link does not work right.  Asked on Doxygen forum for advice 23 May 2103.
 
-    void swap(circular_buffer_space_optimized<T, Alloc>& cb) BOOST_NOEXCEPT {
+    void swap(circular_buffer_space_optimized<T, Alloc>& cb) noexcept {
         std::swap(m_capacity_ctrl, cb.m_capacity_ctrl);
         circular_buffer<T, Alloc>::swap(cb);
     }
@@ -813,7 +799,7 @@ public:
               The amount of allocated memory in the internal buffer may be predictively increased.
         \throws "An allocation error" if memory is exhausted (<code>std::bad_alloc</code> if the standard allocator is
                 used).
-                Whatever <code>T::T()</code> throws. 
+                Whatever <code>T::T()</code> throws.
                 Whatever <code>T::T(const T&)</code> throws or nothing if <code>T::T(T&&)</code> is noexcept.
         \par Exception Safety
              Basic.
@@ -1384,7 +1370,7 @@ public:
                 element exists.
         \throws "An allocation error" if memory is exhausted (<code>std::bad_alloc</code> if the standard allocator is
                 used).
-                Whatever <code>T::operator = (const T&)</code> throws or 
+                Whatever <code>T::operator = (const T&)</code> throws or
                 nothing if <code>T::operator = (T&&)</code> is noexcept.
         \par Exception Safety
              Basic.
@@ -1415,7 +1401,7 @@ public:
                 element exists.
         \throws "An allocation error" if memory is exhausted (<code>std::bad_alloc</code> if the standard allocator is
                 used).
-                Whatever <code>T::operator = (const T&)</code> throws or 
+                Whatever <code>T::operator = (const T&)</code> throws or
                 nothing if <code>T::operator = (T&&)</code> is noexcept.
         \par Exception Safety
              Basic.
@@ -1445,7 +1431,7 @@ public:
                 such element exists.
         \throws "An allocation error" if memory is exhausted (<code>std::bad_alloc</code> if the standard allocator is
                 used).
-                Whatever <code>T::operator = (const T&)</code> throws or 
+                Whatever <code>T::operator = (const T&)</code> throws or
                 nothing if <code>T::operator = (T&&)</code> is noexcept.
         \par Exception Safety
              Basic.
@@ -1478,7 +1464,7 @@ public:
                 such element exists.
         \throws "An allocation error" if memory is exhausted (<code>std::bad_alloc</code> if the standard allocator is
                 used).
-                Whatever <code>T::operator = (const T&)</code> throws or 
+                Whatever <code>T::operator = (const T&)</code> throws or
                 nothing if <code>T::operator = (T&&)</code> is noexcept.
         \par Exception Safety
              Basic.
@@ -1579,12 +1565,12 @@ private:
     }
 
     //! Specialized method for reducing the capacity.
-    void reduce_capacity(const true_type&) {
+    void reduce_capacity(const std::true_type&) {
         circular_buffer<T, Alloc>::set_capacity((std::max)(m_capacity_ctrl.min_capacity(), size()));
     }
 
     //! Specialized method for reducing the capacity.
-    void reduce_capacity(const false_type&) {}
+    void reduce_capacity(const std::false_type&) {}
 
     //! Determine the initial capacity.
     static size_type init_capacity(const capacity_type& capacity_ctrl, size_type n) {
@@ -1604,12 +1590,8 @@ private:
     static size_type init_capacity(const capacity_type& capacity_ctrl, Iterator first, Iterator last,
         const false_type&) {
         BOOST_CB_IS_CONVERTIBLE(Iterator, value_type); // check for invalid iterator type
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x581))
-        return init_capacity(capacity_ctrl, first, last, std::iterator_traits<Iterator>::iterator_category());
-#else
         return init_capacity(
-            capacity_ctrl, first, last, BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::iterator_category());
-#endif
+            capacity_ctrl, first, last, typename std::iterator_traits<Iterator>::iterator_category());
     }
 
     //! Specialized method for determining the initial capacity.
@@ -1675,8 +1657,6 @@ inline bool operator < (const circular_buffer_space_optimized<T, Alloc>& lhs,
         lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 }
 
-#if !defined(BOOST_NO_FUNCTION_TEMPLATE_ORDERING) || BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1310))
-
 //! Test two space optimized circular buffers for non-equality.
 template <class T, class Alloc>
 inline bool operator != (const circular_buffer_space_optimized<T, Alloc>& lhs,
@@ -1708,11 +1688,9 @@ inline bool operator >= (const circular_buffer_space_optimized<T, Alloc>& lhs,
 //! Swap the contents of two space optimized circular buffers.
 template <class T, class Alloc>
 inline void swap(circular_buffer_space_optimized<T, Alloc>& lhs,
-    circular_buffer_space_optimized<T, Alloc>& rhs) BOOST_NOEXCEPT {
+    circular_buffer_space_optimized<T, Alloc>& rhs) noexcept {
     lhs.swap(rhs);
 }
-
-#endif // #if !defined(BOOST_NO_FUNCTION_TEMPLATE_ORDERING) || BOOST_WORKAROUND(BOOST_MSVC, BOOST_TESTED_AT(1310))
 
 } // namespace boost
 

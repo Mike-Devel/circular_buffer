@@ -9,20 +9,10 @@
 #if !defined(BOOST_CIRCULAR_BUFFER_DEBUG_HPP)
 #define BOOST_CIRCULAR_BUFFER_DEBUG_HPP
 
-#if defined(_MSC_VER)
-    #pragma once
-#endif
-
 #if BOOST_CB_ENABLE_DEBUG
 #include <cstring>
-
-#if defined(BOOST_NO_STDC_NAMESPACE)
-namespace std {
-    using ::memset;
-}
-#endif
-
 #endif // BOOST_CB_ENABLE_DEBUG
+
 namespace boost {
 
 namespace cb_details {
