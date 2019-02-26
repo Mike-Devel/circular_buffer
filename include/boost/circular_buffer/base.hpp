@@ -32,6 +32,8 @@
 #include <boost/type_traits/conditional.hpp>
 #include <boost/move/adl_move_swap.hpp>
 #include <boost/move/move.hpp>
+#include <boost/core/pointer_traits.hpp>
+#include <boost/throw_exception.hpp>
 #include <algorithm>
 #include <iterator>
 #include <utility>

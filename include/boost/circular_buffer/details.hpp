@@ -16,13 +16,11 @@
     #pragma once
 #endif
 
-#include <boost/throw_exception.hpp>
+
 #include <boost/circular_buffer/allocators.hpp>
-#include <boost/core/pointer_traits.hpp>
-#include <boost/move/move.hpp>
-#include <boost/type_traits/is_nothrow_move_constructible.hpp>
-#include <boost/core/no_exceptions_support.hpp>
+
 #include <iterator>
+#include <type_traits>
 
 // Silence MS /W4 warnings like C4913:
 // "user defined binary operator ',' exists but no overload could convert all operands, default built-in binary operator ',' used"
@@ -422,29 +420,28 @@ operator + (typename Traits::difference_type n, const iterator<Buff, Traits>& it
 template<class InputIterator, class ForwardIterator, class Alloc>
 inline ForwardIterator uninitialized_copy(InputIterator first, InputIterator last, ForwardIterator dest, Alloc& a) {
     ForwardIterator next = dest;
-    BOOST_TRY {
+    try {
         for (; first != last; ++first, ++dest)
             allocator_traits<Alloc>::construct(a, boost::to_address(dest), *first);
-    } BOOST_CATCH(...) {
+    } catch(...) {
         for (; next != dest; ++next)
             allocator_traits<Alloc>::destroy(a, boost::to_address(next));
-        BOOST_RETHROW
+		throw ;
     }
-    BOOST_CATCH_END
     return dest;
 }
 
 template<class InputIterator, class ForwardIterator, class Alloc>
 ForwardIterator uninitialized_move_if_noexcept_impl(InputIterator first, InputIterator last, ForwardIterator dest, Alloc& a,
-    true_type) {
+    std::true_type) {
     for (; first != last; ++first, ++dest)
-        allocator_traits<Alloc>::construct(a, boost::to_address(dest), boost::move(*first));
+        allocator_traits<Alloc>::construct(a, boost::to_address(dest), std::move(*first));
     return dest;
 }
 
 template<class InputIterator, class ForwardIterator, class Alloc>
 ForwardIterator uninitialized_move_if_noexcept_impl(InputIterator first, InputIterator last, ForwardIterator dest, Alloc& a,
-    false_type) {
+	std::false_type) {
     return uninitialized_copy(first, last, dest, a);
 }
 
@@ -454,7 +451,7 @@ ForwardIterator uninitialized_move_if_noexcept_impl(InputIterator first, InputIt
 */
 template<class InputIterator, class ForwardIterator, class Alloc>
 ForwardIterator uninitialized_move_if_noexcept(InputIterator first, InputIterator last, ForwardIterator dest, Alloc& a) {
-    typedef typename boost::is_nothrow_move_constructible<typename allocator_traits<Alloc>::value_type>::type tag_t;
+    typedef typename std::is_nothrow_move_constructible<typename allocator_traits<Alloc>::value_type>::type tag_t;
     return uninitialized_move_if_noexcept_impl(first, last, dest, a, tag_t());
 }
 
@@ -465,15 +462,14 @@ ForwardIterator uninitialized_move_if_noexcept(InputIterator first, InputIterato
 template<class ForwardIterator, class Diff, class T, class Alloc>
 inline void uninitialized_fill_n_with_alloc(ForwardIterator first, Diff n, const T& item, Alloc& alloc) {
     ForwardIterator next = first;
-    BOOST_TRY {
+    try {
         for (; n > 0; ++first, --n)
             allocator_traits<Alloc>::construct(alloc, boost::to_address(first), item);
-    } BOOST_CATCH(...) {
+    } catch(...) {
         for (; next != first; ++next)
             allocator_traits<Alloc>::destroy(alloc, boost::to_address(next));
-        BOOST_RETHROW
+		throw;
     }
-    BOOST_CATCH_END
 }
 
 } // namespace cb_details
