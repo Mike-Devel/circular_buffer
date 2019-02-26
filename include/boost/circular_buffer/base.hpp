@@ -14,16 +14,9 @@
 #if !defined(BOOST_CIRCULAR_BUFFER_BASE_HPP)
 #define BOOST_CIRCULAR_BUFFER_BASE_HPP
 
-#if defined(_MSC_VER)
-    #pragma once
-#endif
-
 #include <boost/circular_buffer/allocators.hpp>
 
 #include <boost/circular_buffer/ext.hpp>
-
-#include <boost/config.hpp>
-#include <boost/core/empty_value.hpp>
 
 #include <algorithm>
 #include <iterator>
@@ -31,9 +24,6 @@
 #include <deque>
 #include <stdexcept>
 #include <type_traits>
-
-
-
 
 namespace boost {
 
@@ -69,9 +59,9 @@ class circular_buffer
 public cb_details::debug_iterator_registry,
 #endif
 /*! \endcond */
-private empty_value<Alloc>
+private utils::empty_value<Alloc>
 {
-    typedef empty_value<Alloc> base;
+    typedef utils::empty_value<Alloc> base;
 
   // Requirements
     //BOOST_CLASS_REQUIRE(T, boost, SGIAssignableConcept);
@@ -1013,7 +1003,7 @@ public:
             <code>set_capacity(capacity_type)</code>
     */
     explicit circular_buffer(const allocator_type& alloc = allocator_type()) noexcept
-    : base(boost::empty_init_t(), alloc), m_buff(0), m_end(0), m_first(0), m_last(0), m_size(0) {}
+    : base(utils::empty_init_t(), alloc), m_buff(0), m_end(0), m_first(0), m_last(0), m_size(0) {}
 
     //! Create an empty <code>circular_buffer</code> with the specified capacity.
     /*!
@@ -1026,7 +1016,7 @@ public:
              Constant.
     */
     explicit circular_buffer(capacity_type buffer_capacity, const allocator_type& alloc = allocator_type())
-    : base(boost::empty_init_t(), alloc), m_size(0) {
+    : base(utils::empty_init_t(), alloc), m_size(0) {
         initialize_buffer(buffer_capacity);
         m_first = m_last = m_buff;
     }
@@ -1045,7 +1035,7 @@ public:
              Linear (in the <code>n</code>).
     */
     circular_buffer(size_type n, param_value_type item, const allocator_type& alloc = allocator_type())
-    : base(boost::empty_init_t(), alloc), m_size(n) {
+    : base(utils::empty_init_t(), alloc), m_size(n) {
         initialize_buffer(n, item);
         m_first = m_last = m_buff;
     }
@@ -1067,7 +1057,7 @@ public:
     */
     circular_buffer(capacity_type buffer_capacity, size_type n, param_value_type item,
         const allocator_type& alloc = allocator_type())
-    : base(boost::empty_init_t(), alloc), m_size(n) {
+    : base(utils::empty_init_t(), alloc), m_size(n) {
         BOOST_CB_ASSERT(buffer_capacity >= size()); // check for capacity lower than size
         initialize_buffer(buffer_capacity, item);
         m_first = m_buff;
@@ -1090,7 +1080,7 @@ public:
 #if BOOST_CB_ENABLE_DEBUG
     debug_iterator_registry(),
 #endif
-    base(boost::empty_init_t(), cb.get_allocator()),
+    base(utils::empty_init_t(), cb.get_allocator()),
     m_size(cb.size()) {
         initialize_buffer(cb.capacity());
         m_first = m_buff;
@@ -1115,7 +1105,7 @@ public:
         \par Constant.
     */
     circular_buffer(circular_buffer<T, Alloc>&& cb) noexcept
-    : base(boost::empty_init_t(), cb.get_allocator()), m_buff(0), m_end(0), m_first(0), m_last(0), m_size(0) {
+    : base(utils::empty_init_t(), cb.get_allocator()), m_buff(0), m_end(0), m_first(0), m_last(0), m_size(0) {
         cb.swap(*this);
     }
 #endif // BOOST_NO_CXX11_RVALUE_REFERENCES
@@ -1138,7 +1128,7 @@ public:
     */
     template <class InputIterator>
     circular_buffer(InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type())
-    : base(boost::empty_init_t(), alloc) {
+    : base(utils::empty_init_t(), alloc) {
         initialize(first, last, std::is_integral<InputIterator>());
     }
 
@@ -1168,7 +1158,7 @@ public:
     template <class InputIterator>
     circular_buffer(capacity_type buffer_capacity, InputIterator first, InputIterator last,
         const allocator_type& alloc = allocator_type())
-    : base(boost::empty_init_t(), alloc) {
+    : base(utils::empty_init_t(), alloc) {
         initialize(buffer_capacity, first, last, std::is_integral<InputIterator>());
     }
 
@@ -2511,7 +2501,7 @@ private:
     template <class Iterator>
     void initialize(Iterator first, Iterator last, const std::false_type&) {
         BOOST_CB_IS_CONVERTIBLE(Iterator, value_type); // check for invalid iterator type
-        initialize(first, last, BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::iterator_category());
+        initialize(first, last, typename std::iterator_traits<Iterator>::iterator_category());
     }
 
     //! Specialized initialize method.
@@ -2546,7 +2536,7 @@ private:
     template <class Iterator>
     void initialize(capacity_type buffer_capacity, Iterator first, Iterator last, const std::false_type&) {
         BOOST_CB_IS_CONVERTIBLE(Iterator, value_type); // check for invalid iterator type
-        initialize(buffer_capacity, first, last, BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::iterator_category());
+        initialize(buffer_capacity, first, last, typename std::iterator_traits<Iterator>::iterator_category());
     }
 
     //! Specialized initialize method.
@@ -2637,7 +2627,7 @@ private:
     template <class Iterator>
     void assign(Iterator first, Iterator last, const std::false_type&) {
         BOOST_CB_IS_CONVERTIBLE(Iterator, value_type); // check for invalid iterator type
-        assign(first, last, BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::iterator_category());
+        assign(first, last, typename std::iterator_traits<Iterator>::iterator_category());
     }
 
     //! Specialized assign method.
@@ -2670,7 +2660,7 @@ private:
     template <class Iterator>
     void assign(capacity_type new_capacity, Iterator first, Iterator last, const std::false_type&) {
         BOOST_CB_IS_CONVERTIBLE(Iterator, value_type); // check for invalid iterator type
-        assign(new_capacity, first, last, BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::iterator_category());
+        assign(new_capacity, first, last, typename std::iterator_traits<Iterator>::iterator_category());
     }
 
     //! Specialized assign method.
@@ -2775,7 +2765,7 @@ private:
     template <class Iterator>
     void insert(const iterator& pos, Iterator first, Iterator last, const std::false_type&) {
         BOOST_CB_IS_CONVERTIBLE(Iterator, value_type); // check for invalid iterator type
-        insert(pos, first, last, BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::iterator_category());
+        insert(pos, first, last, typename std::iterator_traits<Iterator>::iterator_category());
     }
 
     //! Specialized insert method.
@@ -2862,7 +2852,7 @@ private:
     template <class Iterator>
     void rinsert(const iterator& pos, Iterator first, Iterator last, const std::false_type&) {
         BOOST_CB_IS_CONVERTIBLE(Iterator, value_type); // check for invalid iterator type
-        rinsert(pos, first, last, BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::iterator_category());
+        rinsert(pos, first, last, typename std::iterator_traits<Iterator>::iterator_category());
     }
 
     //! Specialized insert method.

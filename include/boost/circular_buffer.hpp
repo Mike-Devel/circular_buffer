@@ -11,10 +11,6 @@
 #if !defined(BOOST_CIRCULAR_BUFFER_HPP)
 #define BOOST_CIRCULAR_BUFFER_HPP
 
-#if defined(_MSC_VER)
-    #pragma once
-#endif
-
 #include <boost/circular_buffer_fwd.hpp>
 
 // BOOST_CB_ENABLE_DEBUG: Debug support control.
@@ -32,12 +28,10 @@
 
 // BOOST_CB_IS_CONVERTIBLE: Check if Iterator::value_type is convertible to Type.
 #include <iterator>
+#include <type_traits>
 #define BOOST_CB_IS_CONVERTIBLE(Iterator, Type) \
     static_assert(std::is_convertible<typename std::iterator_traits<Iterator>::value_type, Type>::value,"")
 
-
-// BOOST_CB_ASSERT_TEMPLATED_ITERATOR_CONSTRUCTORS:
-// Check if the STL provides templated iterator constructors for its containers.
 
 #define BOOST_CB_ASSERT_TEMPLATED_ITERATOR_CONSTRUCTORS ((void)0);
 
