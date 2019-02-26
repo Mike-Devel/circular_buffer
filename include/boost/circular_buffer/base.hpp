@@ -39,10 +39,7 @@
 #include <utility>
 #include <deque>
 #include <stdexcept>
-
-#if BOOST_WORKAROUND(__MWERKS__, BOOST_TESTED_AT(0x3205))
-    #include <stddef.h>
-#endif
+#include <type_traits>
 
 namespace boost {
 
@@ -96,7 +93,7 @@ private empty_value<Alloc>
 
 public:
 // Basic types
-    
+
     //! The type of this <code>circular_buffer</code>.
     typedef circular_buffer<T, Alloc> this_type;
 
@@ -178,7 +175,7 @@ public:
 
     //! A type representing rvalue from param type.
     //! On compilers without rvalue references support this type is the Boost.Moves type used for emulation.
-    typedef BOOST_RV_REF(value_type) rvalue_type;
+    typedef value_type&& rvalue_type;
 
 private:
 // Member variables
@@ -221,7 +218,7 @@ public:
              Constant (in the size of the <code>circular_buffer</code>).
         \sa <code>get_allocator()</code> for obtaining an allocator %reference.
     */
-    allocator_type get_allocator() const BOOST_NOEXCEPT { return alloc(); }
+    allocator_type get_allocator() const noexcept { return alloc(); }
 
     //! Get the allocator reference.
     /*!
@@ -237,7 +234,7 @@ public:
               although use of stateful allocators in STL is discouraged.
         \sa <code>get_allocator() const</code>
     */
-    allocator_type& get_allocator() BOOST_NOEXCEPT { return alloc(); }
+    allocator_type& get_allocator() noexcept { return alloc(); }
 
 // Element access
 
@@ -255,7 +252,7 @@ public:
              Constant (in the size of the <code>circular_buffer</code>).
         \sa <code>end()</code>, <code>rbegin()</code>, <code>rend()</code>
     */
-    iterator begin() BOOST_NOEXCEPT { return iterator(this, empty() ? 0 : m_first); }
+    iterator begin() noexcept { return iterator(this, empty() ? 0 : m_first); }
 
     //! Get the iterator pointing to the end of the <code>circular_buffer</code>.
     /*!
@@ -271,7 +268,7 @@ public:
              Constant (in the size of the <code>circular_buffer</code>).
         \sa <code>begin()</code>, <code>rbegin()</code>, <code>rend()</code>
     */
-    iterator end() BOOST_NOEXCEPT { return iterator(this, 0); }
+    iterator end() noexcept { return iterator(this, 0); }
 
     //! Get the const iterator pointing to the beginning of the <code>circular_buffer</code>.
     /*!
@@ -287,7 +284,7 @@ public:
              Constant (in the size of the <code>circular_buffer</code>).
         \sa <code>end() const</code>, <code>rbegin() const</code>, <code>rend() const</code>
     */
-    const_iterator begin() const BOOST_NOEXCEPT { return const_iterator(this, empty() ? 0 : m_first); }
+    const_iterator begin() const noexcept { return const_iterator(this, empty() ? 0 : m_first); }
 
     //! Get the const iterator pointing to the end of the <code>circular_buffer</code>.
     /*!
@@ -303,7 +300,7 @@ public:
              Constant (in the size of the <code>circular_buffer</code>).
         \sa <code>begin() const</code>, <code>rbegin() const</code>, <code>rend() const</code>
     */
-    const_iterator end() const BOOST_NOEXCEPT { return const_iterator(this, 0); }
+    const_iterator end() const noexcept { return const_iterator(this, 0); }
 
     //! Get the iterator pointing to the beginning of the "reversed" <code>circular_buffer</code>.
     /*!
@@ -319,7 +316,7 @@ public:
              Constant (in the size of the <code>circular_buffer</code>).
         \sa <code>rend()</code>, <code>begin()</code>, <code>end()</code>
     */
-    reverse_iterator rbegin() BOOST_NOEXCEPT { return reverse_iterator(end()); }
+    reverse_iterator rbegin() noexcept { return reverse_iterator(end()); }
 
     //! Get the iterator pointing to the end of the "reversed" <code>circular_buffer</code>.
     /*!
@@ -335,7 +332,7 @@ public:
              Constant (in the size of the <code>circular_buffer</code>).
         \sa <code>rbegin()</code>, <code>begin()</code>, <code>end()</code>
     */
-    reverse_iterator rend() BOOST_NOEXCEPT { return reverse_iterator(begin()); }
+    reverse_iterator rend() noexcept { return reverse_iterator(begin()); }
 
     //! Get the const iterator pointing to the beginning of the "reversed" <code>circular_buffer</code>.
     /*!
@@ -351,7 +348,7 @@ public:
              Constant (in the size of the <code>circular_buffer</code>).
         \sa <code>rend() const</code>, <code>begin() const</code>, <code>end() const</code>
     */
-    const_reverse_iterator rbegin() const BOOST_NOEXCEPT { return const_reverse_iterator(end()); }
+    const_reverse_iterator rbegin() const noexcept { return const_reverse_iterator(end()); }
 
     //! Get the const iterator pointing to the end of the "reversed" <code>circular_buffer</code>.
     /*!
@@ -367,7 +364,7 @@ public:
              Constant (in the size of the <code>circular_buffer</code>).
         \sa <code>rbegin() const</code>, <code>begin() const</code>, <code>end() const</code>
     */
-    const_reverse_iterator rend() const BOOST_NOEXCEPT { return const_reverse_iterator(begin()); }
+    const_reverse_iterator rend() const noexcept { return const_reverse_iterator(begin()); }
 
     //! Get the element at the <code>index</code> position.
     /*!
@@ -656,7 +653,7 @@ public:
         pointer dest = m_buff;
         size_type moved = 0;
         size_type constructed = 0;
-        BOOST_TRY {
+        try {
             for (pointer first = m_first; dest < src; src = first) {
                 for (size_type ii = 0; src < m_end; ++src, ++dest, ++moved, ++ii) {
                     if (moved == size()) {
@@ -671,18 +668,18 @@ public:
                         cb_details::allocator_traits<Alloc>::construct(alloc(), boost::to_address(dest), boost::move_if_noexcept(*src));
                         ++constructed;
                     } else {
-                        value_type tmp = boost::move_if_noexcept(*src); 
+                        value_type tmp = boost::move_if_noexcept(*src);
                         replace(src, boost::move_if_noexcept(*dest));
                         replace(dest, boost::move(tmp));
                     }
                 }
             }
-        } BOOST_CATCH(...) {
+        } catch(...) {
             m_last += constructed;
             m_size += constructed;
-            BOOST_RETHROW
+            throw ;
         }
-        BOOST_CATCH_END
+
         for (src = m_end - constructed; src < m_end; ++src)
             destroy_item(src);
         m_first = m_buff;
@@ -708,7 +705,7 @@ public:
              Constant (in the size of the <code>circular_buffer</code>).
         \sa <code>linearize()</code>, <code>array_one()</code>, <code>array_two()</code>
     */
-    bool is_linearized() const BOOST_NOEXCEPT { return m_first < m_last || m_last == m_buff; }
+    bool is_linearized() const noexcept { return m_first < m_last || m_last == m_buff; }
 
     //! Rotate elements in the <code>circular_buffer</code>.
     /*!
@@ -774,7 +771,7 @@ public:
         \sa <code>capacity()</code>, <code>max_size()</code>, <code>reserve()</code>,
             <code>\link resize() resize(size_type, const_reference)\endlink</code>
     */
-    size_type size() const BOOST_NOEXCEPT { return m_size; }
+    size_type size() const noexcept { return m_size; }
 
     /*! \brief Get the largest possible size or capacity of the <code>circular_buffer</code>. (It depends on
                allocator's %max_size()).
@@ -788,7 +785,7 @@ public:
              Constant (in the size of the <code>circular_buffer</code>).
         \sa <code>size()</code>, <code>capacity()</code>, <code>reserve()</code>
     */
-    size_type max_size() const BOOST_NOEXCEPT {
+    size_type max_size() const noexcept {
         return (std::min<size_type>)(cb_details::allocator_traits<Alloc>::max_size(alloc()), (std::numeric_limits<difference_type>::max)());
     }
 
@@ -805,7 +802,7 @@ public:
              Constant (in the size of the <code>circular_buffer</code>).
         \sa <code>full()</code>
     */
-    bool empty() const BOOST_NOEXCEPT { return size() == 0; }
+    bool empty() const noexcept { return size() == 0; }
 
     //! Is the <code>circular_buffer</code> full?
     /*!
@@ -820,7 +817,7 @@ public:
              Constant (in the size of the <code>circular_buffer</code>).
         \sa <code>empty()</code>
     */
-    bool full() const BOOST_NOEXCEPT { return capacity() == size(); }
+    bool full() const noexcept { return capacity() == size(); }
 
     /*! \brief Get the maximum number of elements which can be inserted into the <code>circular_buffer</code> without
                overwriting any of already stored elements.
@@ -834,7 +831,7 @@ public:
              Constant (in the size of the <code>circular_buffer</code>).
         \sa <code>capacity()</code>, <code>size()</code>, <code>max_size()</code>
     */
-    size_type reserve() const BOOST_NOEXCEPT { return capacity() - size(); }
+    size_type reserve() const noexcept { return capacity() - size(); }
 
     //! Get the capacity of the <code>circular_buffer</code>.
     /*!
@@ -849,10 +846,10 @@ public:
         \sa <code>reserve()</code>, <code>size()</code>, <code>max_size()</code>,
             <code>set_capacity(capacity_type)</code>
     */
-    capacity_type capacity() const BOOST_NOEXCEPT { return m_end - m_buff; }
+    capacity_type capacity() const noexcept { return m_end - m_buff; }
 
     //! Change the capacity of the <code>circular_buffer</code>.
-    /*! 
+    /*!
         \pre If <code>T</code> is a move only type, then compiler shall support <code>noexcept</code> modifiers
                 and move constructor of <code>T</code> must be marked with it (must not throw exceptions).
         \post <code>capacity() == new_capacity \&\& size() \<= new_capacity</code><br><br>
@@ -878,15 +875,15 @@ public:
             return;
         pointer buff = allocate(new_capacity);
         iterator b = begin();
-        BOOST_TRY {
+        try {
             reset(buff,
                 cb_details::uninitialized_move_if_noexcept(b, b + (std::min)(new_capacity, size()), buff, alloc()),
                 new_capacity);
-        } BOOST_CATCH(...) {
+        } catch(...) {
             deallocate(buff, new_capacity);
-            BOOST_RETHROW
+            throw ;
         }
-        BOOST_CATCH_END
+
     }
 
     //! Change the size of the <code>circular_buffer</code>.
@@ -928,7 +925,7 @@ public:
     }
 
     //! Change the capacity of the <code>circular_buffer</code>.
-    /*! 
+    /*!
         \pre If <code>T</code> is a move only type, then compiler shall support <code>noexcept</code> modifiers
                 and move constructor of <code>T</code> must be marked with it (must not throw exceptions).
         \post <code>capacity() == new_capacity \&\& size() \<= new_capacity</code><br><br>
@@ -954,14 +951,14 @@ public:
             return;
         pointer buff = allocate(new_capacity);
         iterator e = end();
-        BOOST_TRY {
+        try {
             reset(buff, cb_details::uninitialized_move_if_noexcept(e - (std::min)(new_capacity, size()),
                 e, buff, alloc()), new_capacity);
-        } BOOST_CATCH(...) {
+        } catch(...) {
             deallocate(buff, new_capacity);
-            BOOST_RETHROW
+            throw ;
         }
-        BOOST_CATCH_END
+
     }
 
     //! Change the size of the <code>circular_buffer</code>.
@@ -1021,7 +1018,7 @@ public:
         \sa <code>circular_buffer(capacity_type, const allocator_type& alloc)</code>,
             <code>set_capacity(capacity_type)</code>
     */
-    explicit circular_buffer(const allocator_type& alloc = allocator_type()) BOOST_NOEXCEPT
+    explicit circular_buffer(const allocator_type& alloc = allocator_type()) noexcept
     : base(boost::empty_init_t(), alloc), m_buff(0), m_end(0), m_first(0), m_last(0), m_size(0) {}
 
     //! Create an empty <code>circular_buffer</code> with the specified capacity.
@@ -1103,17 +1100,17 @@ public:
     m_size(cb.size()) {
         initialize_buffer(cb.capacity());
         m_first = m_buff;
-        BOOST_TRY {
+        try {
             m_last = cb_details::uninitialized_copy(cb.begin(), cb.end(), m_buff, alloc());
-        } BOOST_CATCH(...) {
+        } catch(...) {
             deallocate(m_buff, cb.capacity());
-            BOOST_RETHROW
+            throw ;
         }
-        BOOST_CATCH_END
+
         if (m_last == m_end)
             m_last = m_buff;
     }
-    
+
 #ifndef BOOST_NO_CXX11_RVALUE_REFERENCES
     //! The move constructor.
     /*! \brief Move constructs a <code>circular_buffer</code> from <code>cb</code>, leaving <code>cb</code> empty.
@@ -1123,7 +1120,7 @@ public:
         \throws Nothing.
         \par Constant.
     */
-    circular_buffer(circular_buffer<T, Alloc>&& cb) BOOST_NOEXCEPT
+    circular_buffer(circular_buffer<T, Alloc>&& cb) noexcept
     : base(boost::empty_init_t(), cb.get_allocator()), m_buff(0), m_end(0), m_first(0), m_last(0), m_size(0) {
         cb.swap(*this);
     }
@@ -1192,7 +1189,7 @@ public:
              Constant (in the size of the <code>circular_buffer</code>) for scalar types; linear for other types.
         \sa <code>clear()</code>
     */
-    ~circular_buffer() BOOST_NOEXCEPT {
+    ~circular_buffer() noexcept {
         destroy();
 #if BOOST_CB_ENABLE_DEBUG
         invalidate_all_iterators();
@@ -1227,13 +1224,13 @@ public:
         if (this == &cb)
             return *this;
         pointer buff = allocate(cb.capacity());
-        BOOST_TRY {
+        try {
             reset(buff, cb_details::uninitialized_copy(cb.begin(), cb.end(), buff, alloc()), cb.capacity());
-        } BOOST_CATCH(...) {
+        } catch(...) {
             deallocate(buff, cb.capacity());
-            BOOST_RETHROW
+            throw ;
         }
-        BOOST_CATCH_END
+
         return *this;
     }
 
@@ -1246,7 +1243,7 @@ public:
         \par Complexity
              Constant.
     */
-    circular_buffer<T, Alloc>& operator = (circular_buffer<T, Alloc>&& cb) BOOST_NOEXCEPT {
+    circular_buffer<T, Alloc>& operator = (circular_buffer<T, Alloc>&& cb) noexcept {
         cb.swap(*this); // now `this` holds `cb`
         circular_buffer<T, Alloc>(get_allocator()) // temporary that holds initial `cb` allocator
             .swap(cb); // makes `cb` empty
@@ -1401,7 +1398,7 @@ public:
              Constant (in the size of the <code>circular_buffer</code>).
         \sa <code>swap(circular_buffer<T, Alloc>&, circular_buffer<T, Alloc>&)</code>
     */
-    void swap(circular_buffer<T, Alloc>& cb) BOOST_NOEXCEPT {
+    void swap(circular_buffer<T, Alloc>& cb) noexcept {
         swap_allocator(cb, is_stateless<allocator_type>());
         adl_move_swap(m_buff, cb.m_buff);
         adl_move_swap(m_end, cb.m_end);
@@ -1428,12 +1425,12 @@ private:
             cb_details::allocator_traits<Alloc>::construct(alloc(), boost::to_address(m_last), static_cast<ValT>(item));
             increment(m_last);
             ++m_size;
-        }        
+        }
     }
 
     template <class ValT>
     void push_front_impl(ValT item) {
-        BOOST_TRY {
+        try {
             if (full()) {
                 if (empty())
                     return;
@@ -1445,11 +1442,11 @@ private:
                 cb_details::allocator_traits<Alloc>::construct(alloc(), boost::to_address(m_first), static_cast<ValT>(item));
                 ++m_size;
             }
-        } BOOST_CATCH(...) {
+        } catch(...) {
             increment(m_first);
-            BOOST_RETHROW
+            throw ;
         }
-        BOOST_CATCH_END
+
     }
 
 public:
@@ -1649,7 +1646,7 @@ public:
         \throws Whatever <code>T::T(const T&)</code> throws.
                 Whatever <code>T::operator = (const T&)</code> throws.
                 <a href="circular_buffer/implementation.html#circular_buffer.implementation.exceptions_of_move_if_noexcept_t">Exceptions of move_if_noexcept(T&)</a>.
-         
+
         \par Exception Safety
              Basic; no-throw if the operation in the <i>Throws</i> section does not throw anything.
         \par Iterator Invalidation
@@ -1848,14 +1845,14 @@ private:
         if (full() && pos.m_it == 0)
             return end();
         if (pos == begin()) {
-            BOOST_TRY {
+            try {
                 decrement(m_first);
                 construct_or_replace(!full(), m_first, static_cast<ValT>(item));
-            } BOOST_CATCH(...) {
+            } catch(...) {
                 increment(m_first);
-                BOOST_RETHROW
+                throw ;
             }
-            BOOST_CATCH_END
+
             pos.m_it = m_first;
         } else {
             pointer src = m_first;
@@ -1863,7 +1860,7 @@ private:
             decrement(dest);
             pos.m_it = map_pointer(pos.m_it);
             bool construct = !full();
-            BOOST_TRY {
+            try {
                 while (src != pos.m_it) {
                     construct_or_replace(construct, dest, boost::move_if_noexcept(*src));
                     increment(src);
@@ -1872,14 +1869,14 @@ private:
                 }
                 decrement(pos.m_it);
                 replace(pos.m_it, static_cast<ValT>(item));
-            } BOOST_CATCH(...) {
+            } catch(...) {
                 if (!construct && !full()) {
                     decrement(m_first);
                     ++m_size;
                 }
-                BOOST_RETHROW
+                throw ;
             }
-            BOOST_CATCH_END
+
             decrement(m_first);
         }
         if (full())
@@ -1890,7 +1887,7 @@ private:
     }
 
 public:
-   
+
     //! Insert an element before the specified position.
     /*!
         \pre <code>pos</code> is a valid iterator pointing to the <code>circular_buffer</code> or its end.
@@ -2326,7 +2323,7 @@ public:
             <code>rerase(iterator)</code>, <code>rerase(iterator, iterator)</code>,
             <code>erase_begin(size_type)</code>, <code>erase_end(size_type)</code>
     */
-    void clear() BOOST_NOEXCEPT {
+    void clear() noexcept {
         destroy_content();
         m_size = 0;
     }
@@ -2398,7 +2395,7 @@ private:
     }
 
     //! Does the pointer point to the uninitialized memory?
-    bool is_uninitialized(const_pointer p) const BOOST_NOEXCEPT {
+    bool is_uninitialized(const_pointer p) const noexcept {
         return p >= m_last && (m_first < m_last || p < m_first);
     }
 
@@ -2478,7 +2475,7 @@ private:
     }
 
     //! Destroy content and free allocated memory.
-    void destroy() BOOST_NOEXCEPT {
+    void destroy() noexcept {
         destroy_content();
         deallocate(m_buff, capacity());
 #if BOOST_CB_ENABLE_DEBUG
@@ -2498,13 +2495,13 @@ private:
     //! Initialize the internal buffer.
     void initialize_buffer(capacity_type buffer_capacity, param_value_type item) {
         initialize_buffer(buffer_capacity);
-        BOOST_TRY {
+        try {
             cb_details::uninitialized_fill_n_with_alloc(m_buff, size(), item, alloc());
-        } BOOST_CATCH(...) {
+        } catch(...) {
             deallocate(m_buff, size());
-            BOOST_RETHROW
+            throw ;
         }
-        BOOST_CATCH_END
+
     }
 
     //! Specialized initialize method.
@@ -2519,11 +2516,7 @@ private:
     template <class Iterator>
     void initialize(Iterator first, Iterator last, const false_type&) {
         BOOST_CB_IS_CONVERTIBLE(Iterator, value_type); // check for invalid iterator type
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x581))
-        initialize(first, last, std::iterator_traits<Iterator>::iterator_category());
-#else
         initialize(first, last, BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::iterator_category());
-#endif
     }
 
     //! Specialized initialize method.
@@ -2558,11 +2551,7 @@ private:
     template <class Iterator>
     void initialize(capacity_type buffer_capacity, Iterator first, Iterator last, const false_type&) {
         BOOST_CB_IS_CONVERTIBLE(Iterator, value_type); // check for invalid iterator type
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x581))
-        initialize(buffer_capacity, first, last, std::iterator_traits<Iterator>::iterator_category());
-#else
         initialize(buffer_capacity, first, last, BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::iterator_category());
-#endif
     }
 
     //! Specialized initialize method.
@@ -2612,13 +2601,13 @@ private:
         } else {
             m_size = distance;
         }
-        BOOST_TRY {
+        try {
             m_last = cb_details::uninitialized_copy(first, last, m_buff, alloc());
-        } BOOST_CATCH(...) {
+        } catch(...) {
             deallocate(m_buff, buffer_capacity);
-            BOOST_RETHROW
+            throw ;
         }
-        BOOST_CATCH_END
+
         if (m_last == m_end)
             m_last = m_buff;
     }
@@ -2652,11 +2641,7 @@ private:
     template <class Iterator>
     void assign(Iterator first, Iterator last, const false_type&) {
         BOOST_CB_IS_CONVERTIBLE(Iterator, value_type); // check for invalid iterator type
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x581))
-        assign(first, last, std::iterator_traits<Iterator>::iterator_category());
-#else
         assign(first, last, BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::iterator_category());
-#endif
     }
 
     //! Specialized assign method.
@@ -2689,11 +2674,7 @@ private:
     template <class Iterator>
     void assign(capacity_type new_capacity, Iterator first, Iterator last, const false_type&) {
         BOOST_CB_IS_CONVERTIBLE(Iterator, value_type); // check for invalid iterator type
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x581))
-        assign(new_capacity, first, last, std::iterator_traits<Iterator>::iterator_category());
-#else
         assign(new_capacity, first, last, BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::iterator_category());
-#endif
     }
 
     //! Specialized assign method.
@@ -2727,22 +2708,22 @@ private:
     void assign_n(capacity_type new_capacity, size_type n, const Functor& fnc) {
         if (new_capacity == capacity()) {
             destroy_content();
-            BOOST_TRY {
+            try {
                 fnc(m_buff);
-            } BOOST_CATCH(...) {
+            } catch(...) {
                 m_size = 0;
-                BOOST_RETHROW
+                throw ;
             }
-            BOOST_CATCH_END
+
         } else {
             pointer buff = allocate(new_capacity);
-            BOOST_TRY {
+            try {
                 fnc(buff);
-            } BOOST_CATCH(...) {
+            } catch(...) {
                 deallocate(buff, new_capacity);
-                BOOST_RETHROW
+                throw ;
             }
-            BOOST_CATCH_END
+
             destroy();
             m_buff = buff;
             m_end = m_buff + new_capacity;
@@ -2763,7 +2744,7 @@ private:
             pointer src = m_last;
             pointer dest = m_last;
             bool construct = !full();
-            BOOST_TRY {
+            try {
                 while (src != p) {
                     decrement(src);
                     construct_or_replace(construct, dest, boost::move_if_noexcept(*src));
@@ -2771,14 +2752,14 @@ private:
                     construct = false;
                 }
                 replace(p, static_cast<ValT>(item));
-            } BOOST_CATCH(...) {
+            } catch(...) {
                 if (!construct && !full()) {
                     increment(m_last);
                     ++m_size;
                 }
-                BOOST_RETHROW
+                throw ;
             }
-            BOOST_CATCH_END
+
         }
         increment(m_last);
         if (full())
@@ -2798,11 +2779,7 @@ private:
     template <class Iterator>
     void insert(const iterator& pos, Iterator first, Iterator last, const false_type&) {
         BOOST_CB_IS_CONVERTIBLE(Iterator, value_type); // check for invalid iterator type
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x581))
-        insert(pos, first, last, std::iterator_traits<Iterator>::iterator_category());
-#else
         insert(pos, first, last, BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::iterator_category());
-#endif
     }
 
     //! Specialized insert method.
@@ -2840,24 +2817,24 @@ private:
         if (pos.m_it == 0) {
             size_type ii = 0;
             pointer p = m_last;
-            BOOST_TRY {
+            try {
                 for (; ii < construct; ++ii, increment(p))
                     cb_details::allocator_traits<Alloc>::construct(alloc(), boost::to_address(p), *wrapper());
                 for (;ii < n; ++ii, increment(p))
                     replace(p, *wrapper());
-            } BOOST_CATCH(...) {
+            } catch(...) {
                 size_type constructed = (std::min)(ii, construct);
                 m_last = add(m_last, constructed);
                 m_size += constructed;
-                BOOST_RETHROW
+                throw ;
             }
-            BOOST_CATCH_END
+
         } else {
             pointer src = m_last;
             pointer dest = add(m_last, n - 1);
             pointer p = pos.m_it;
             size_type ii = 0;
-            BOOST_TRY {
+            try {
                 while (src != pos.m_it) {
                     decrement(src);
                     construct_or_replace(is_uninitialized(dest), dest, *src);
@@ -2865,14 +2842,14 @@ private:
                 }
                 for (; ii < n; ++ii, increment(p))
                     construct_or_replace(is_uninitialized(p), p, *wrapper());
-            } BOOST_CATCH(...) {
+            } catch(...) {
                 for (p = add(m_last, n - 1); p != dest; decrement(p))
                     destroy_if_constructed(p);
                 for (n = 0, p = pos.m_it; n < ii; ++n, increment(p))
                     destroy_if_constructed(p);
-                BOOST_RETHROW
+                throw ;
             }
-            BOOST_CATCH_END
+
         }
         m_last = add(m_last, n);
         m_first = add(m_first, n - construct);
@@ -2889,11 +2866,7 @@ private:
     template <class Iterator>
     void rinsert(const iterator& pos, Iterator first, Iterator last, const false_type&) {
         BOOST_CB_IS_CONVERTIBLE(Iterator, value_type); // check for invalid iterator type
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x581))
-        rinsert(pos, first, last, std::iterator_traits<Iterator>::iterator_category());
-#else
         rinsert(pos, first, last, BOOST_DEDUCED_TYPENAME std::iterator_traits<Iterator>::iterator_category());
-#endif
     }
 
     //! Specialized insert method.
@@ -2932,23 +2905,23 @@ private:
         if (pos == b) {
             pointer p = sub(m_first, n);
             size_type ii = n;
-            BOOST_TRY {
+            try {
                 for (;ii > construct; --ii, increment(p))
                     replace(p, *wrapper());
                 for (; ii > 0; --ii, increment(p))
                     cb_details::allocator_traits<Alloc>::construct(alloc(), boost::to_address(p), *wrapper());
-            } BOOST_CATCH(...) {
+            } catch(...) {
                 size_type constructed = ii < construct ? construct - ii : 0;
                 m_last = add(m_last, constructed);
                 m_size += constructed;
-                BOOST_RETHROW
+                throw ;
             }
-            BOOST_CATCH_END
+
         } else {
             pointer src = m_first;
             pointer dest = sub(m_first, n);
             pointer p = map_pointer(pos.m_it);
-            BOOST_TRY {
+            try {
                 while (src != p) {
                     construct_or_replace(is_uninitialized(dest), dest, *src);
                     increment(src);
@@ -2956,12 +2929,12 @@ private:
                 }
                 for (size_type ii = 0; ii < n; ++ii, increment(dest))
                     construct_or_replace(is_uninitialized(dest), dest, *wrapper());
-            } BOOST_CATCH(...) {
+            } catch(...) {
                 for (src = sub(m_first, n); src != dest; increment(src))
                     destroy_if_constructed(src);
-                BOOST_RETHROW
+                throw ;
             }
-            BOOST_CATCH_END
+
         }
         m_first = sub(m_first, n);
         m_last = sub(m_last, n - construct);
@@ -3123,7 +3096,7 @@ inline bool operator >= (const circular_buffer<T, Alloc>& lhs, const circular_bu
     \sa <code>\link circular_buffer::swap(circular_buffer<T, Alloc>&) swap(circular_buffer<T, Alloc>&)\endlink</code>
 */
 template <class T, class Alloc>
-inline void swap(circular_buffer<T, Alloc>& lhs, circular_buffer<T, Alloc>& rhs) BOOST_NOEXCEPT {
+inline void swap(circular_buffer<T, Alloc>& lhs, circular_buffer<T, Alloc>& rhs) noexcept {
     lhs.swap(rhs);
 }
 
